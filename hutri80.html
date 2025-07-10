@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisasi Anggaran HUT RI ke-80 Kp.cemplang Rt 002/002</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: Aplikasi ini menggunakan struktur dashboard untuk memberikan wawasan cepat dan kemampuan eksplorasi mendalam, kini dengan kemampuan editing. Struktur ini dipilih karena paling efektif untuk menyajikan data finansial dan memungkinkan manipulasi data. Pengguna pertama kali melihat ringkasan tingkat tinggi (KPI dan grafik), lalu dapat menyelami detail melalui tabel yang dapat difilter dan dicari. Bagian baru 'Manajemen Anggaran' memungkinkan penambahan, pengeditan, dan penghapusan item anggaran. Alur ini memandu pengguna dari gambaran umum ke detail spesifik dan memungkinkan mereka untuk mengelola data secara langsung. Terakhir, catatan penting memberikan konteks. -->
+    <!-- Visualization & Content Choices: 1. Total Anggaran -> Goal: Inform -> KPI Card -> Tampilan angka besar dan jelas -> Visibilitas Cepat -> HTML/Tailwind. 2. Rincian Sumber Dana -> Goal: Inform -> KPI Cards -> Angka besar per sumber dana -> Memisahkan total menjadi komponen utama -> HTML/Tailwind. 3. Alokasi Anggaran per Kategori -> Goal: Compare -> Doughnut Chart -> Interaksi hover menampilkan nilai -> Visualisasi proporsi pengeluaran terbesar -> Chart.js/Canvas. 4. Komposisi Sumber Dana -> Goal: Compare -> Bar Chart -> Interaksi hover menampilkan nilai -> Perbandingan jelas antara sumber dana -> Chart.js/Canvas. 5. Detail Anggaran -> Goal: Organize/Explore -> Interactive Table -> Filter dropdown, search-box, dan tombol edit/hapus -> Pengguna dapat menemukan dan memanipulasi data spesifik dengan cepat -> HTML/Tailwind + JS. 6. Manajemen Anggaran -> Goal: Manage Data -> Form input dengan tombol tambah/perbarui/batal -> Memungkinkan pengguna mengedit data secara langsung -> HTML/Tailwind + JS. 7. Catatan Penting -> Goal: Inform -> Accordion -> Klik untuk buka/tutup -> Menyajikan info tambahan tanpa memakan banyak ruang -> HTML/Tailwind + JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4; 
+        }
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .table-responsive-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Anggaran HUT RI ke-80</h1>
+            <p class="mt-2 text-lg text-gray-600">Kp.cemplang Rt 002/002 Desa.Sukamaju Kec.Cibungbulang Kab. Bogor</p>
+        </header>
+
+        <main>
+            <section id="kpi" class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Ringkasan Umum</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                        <h3 class="text-lg font-semibold text-gray-500">Total Anggaran</h3>
+                        <p id="totalAnggaran" class="text-4xl font-bold text-red-700 mt-2">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                        <h3 class="text-lg font-semibold text-gray-500">Dana dari Masyarakat</h3>
+                        <p id="danaMasyarakat" class="text-4xl font-bold text-blue-700 mt-2">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                        <h3 class="text-lg font-semibold text-gray-500">Dana dari Donatur</h3>
+                        <p id="danaDonatur" class="text-4xl font-bold text-green-700 mt-2">Rp 0</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="visualizations" class="mb-8">
+                 <h2 class="text-2xl font-bold text-gray-900 mb-4">Visualisasi Data</h2>
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-center mb-4">Alokasi Anggaran per Kategori</h3>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-center mb-4">Komposisi Sumber Dana</h3>
+                         <div class="chart-container">
+                            <canvas id="sourceChart"></canvas>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+            <section id="manage-budget" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Manajemen Anggaran</h2>
+                <p class="mb-6 text-gray-600">Gunakan formulir di bawah ini untuk menambah item anggaran baru atau memperbarui item yang sudah ada.</p>
+                <form id="budgetForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label for="formKategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                        <input type="text" id="formKategori" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                    </div>
+                    <div>
+                        <label for="formItem" class="block text-sm font-medium text-gray-700 mb-1">Item</label>
+                        <input type="text" id="formItem" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                    </div>
+                    <div>
+                        <label for="formVolume" class="block text-sm font-medium text-gray-700 mb-1">Volume/Jumlah</label>
+                        <input type="number" id="formVolume" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                    </div>
+                    <div>
+                        <label for="formSatuan" class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
+                        <input type="text" id="formSatuan" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                    </div>
+                    <div>
+                        <label for="formHarga" class="block text-sm font-medium text-gray-700 mb-1">Harga Satuan (Rp)</label>
+                        <input type="number" id="formHarga" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                    </div>
+                    <div>
+                        <label for="formSumber" class="block text-sm font-medium text-gray-700 mb-1">Sumber Dana</label>
+                        <select id="formSumber" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                            <option value="">Pilih Sumber</option>
+                            <option value="Masyarakat">Masyarakat</option>
+                            <option value="Donatur Musiman">Donatur Musiman</option>
+                            <option value="Masyarakat/Donatur">Masyarakat/Donatur</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="formPenanggungJawab" class="block text-sm font-medium text-gray-700 mb-1">Penanggung Jawab</label>
+                        <input type="text" id="formPenanggungJawab" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                    </div>
+                    <div class="col-span-full flex gap-4 mt-4">
+                        <button type="submit" id="addItemBtn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-md">Tambah Item</button>
+                        <button type="button" id="updateItemBtn" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hidden">Perbarui Item</button>
+                        <button type="button" id="cancelEditBtn" class="px-6 py-2 bg-gray-400 text-gray-800 font-semibold rounded-lg hover:bg-gray-500 transition-colors shadow-md hidden">Batal Edit</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="details" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Rincian Detail Anggaran</h2>
+                <p class="mb-6 text-gray-600">Gunakan filter di bawah untuk menjelajahi setiap item dalam anggaran. Anda dapat menyaring berdasarkan kategori pengeluaran atau sumber pendanaan, serta mencari item spesifik untuk analisis yang lebih mendalam.</p>
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter Kategori</label>
+                        <select id="categoryFilter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                            <option value="all">Semua Kategori</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label for="sourceFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter Sumber Dana</label>
+                        <select id="sourceFilter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                            <option value="all">Semua Sumber</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label for="searchBox" class="block text-sm font-medium text-gray-700 mb-1">Cari Item</label>
+                        <input type="text" id="searchBox" placeholder="Contoh: Sewa Panggung" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+                </div>
+
+                <div class="table-responsive-wrapper">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Item</th>
+                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Kategori</th>
+                                <th class="p-3 font-semibold text-sm text-gray-700 border-b text-right">Total Biaya</th>
+                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Sumber Dana</th>
+                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Penanggung Jawab</th>
+                                <th class="p-3 font-semibold text-sm text-gray-700 border-b text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budgetTable">
+                        </tbody>
+                    </table>
+                </div>
+                <p id="tableSummary" class="text-sm text-gray-500 mt-4"></p>
+            </section>
+
+            <section id="notes" class="mt-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Catatan Penting</h2>
+                <div id="accordionContainer">
+                </div>
+            </section>
+
+        </main>
+        
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Dibuat untuk Panitia HUT RI ke-80 | &copy; 2025</p>
+        </footer>
+
+    </div>
+
+    <script>
+        let budgetData = []; // Data anggaran awal dikosongkan
+
+        const notesData = [
+            { title: "Fleksibilitas Anggaran", content: "Angka-angka di atas adalah estimasi dan bisa disesuaikan dengan skala acara, ketersediaan dana, serta negosiasi dengan vendor." },
+            { title: "Proposal Donatur", content: "Untuk mendapatkan donatur musiman, sebaiknya siapkan proposal acara yang jelas dan menarik, berisi rincian kegiatan, tujuan, serta benefit yang bisa didapatkan donatur (misalnya, logo di spanduk, penyebutan di acara, dll.)." },
+            { title: "Transparansi", content: "Penting untuk selalu transparan dalam pengelolaan dana, terutama yang berasal dari masyarakat dan donatur, dengan membuat laporan keuangan sederhana yang bisa diakses." },
+            { title: "Negosiasi", content: "Jangan ragu untuk bernegosiasi harga dengan penyedia jasa atau penjual barang untuk mendapatkan penawaran terbaik." }
+        ];
+
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sourceFilter = document.getElementById('sourceFilter');
+        const searchBox = document.getElementById('searchBox');
+        const budgetTableBody = document.getElementById('budgetTable');
+        const tableSummary = document.getElementById('tableSummary');
+
+        const formKategori = document.getElementById('formKategori');
+        const formItem = document.getElementById('formItem');
+        const formVolume = document.getElementById('formVolume');
+        const formSatuan = document.getElementById('formSatuan');
+        const formHarga = document.getElementById('formHarga');
+        const formSumber = document.getElementById('formSumber');
+        const formPenanggungJawab = document.getElementById('formPenanggungJawab'); // New input
+        const addItemBtn = document.getElementById('addItemBtn');
+        const updateItemBtn = document.getElementById('updateItemBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const budgetForm = document.getElementById('budgetForm');
+
+        let currentEditIndex = -1;
+        let categoryChartInstance;
+        let sourceChartInstance;
+        
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+        };
+
+        const getFullBudgetData = () => {
+            // Filter out existing contingency item from budgetData before calculating baseTotal
+            const nonContingencyData = budgetData.filter(item => item.item !== 'Biaya Tak Terduga (Kontingensi)');
+            const baseTotal = nonContingencyData.reduce((sum, item) => sum + item.total, 0);
+            const contingency = Math.round(baseTotal * 0.10); // 10% of base total
+
+            const fullData = [...nonContingencyData]; // Start with non-contingency items
+            
+            // Add or update contingency item
+            if (baseTotal > 0) { // Only add contingency if there are other items
+                fullData.push({
+                    kategori: 'Lain-lain',
+                    item: 'Biaya Tak Terduga (Kontingensi)',
+                    volume: 1,
+                    satuan: 'Paket',
+                    harga: contingency,
+                    total: contingency,
+                    sumber: 'Masyarakat/Donatur',
+                    penanggungJawab: 'Panitia' // Default for contingency
+                });
+            }
+            
+            return fullData;
+        };
+
+        const populateFilters = () => {
+            const fullData = getFullBudgetData();
+            const categories = [...new Set(fullData.map(d => d.kategori))];
+            const sources = [...new Set(fullData.map(d => d.sumber))];
+
+            categoryFilter.innerHTML = '<option value="all">Semua Kategori</option>';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categoryFilter.appendChild(option);
+            });
+
+            sourceFilter.innerHTML = '<option value="all">Semua Sumber</option>';
+            sources.forEach(src => {
+                const option = document.createElement('option');
+                option.value = src;
+                option.textContent = src;
+                sourceFilter.appendChild(option);
+            });
+        };
+
+        const renderTable = (data) => {
+            budgetTableBody.innerHTML = '';
+            if (data.length === 0) {
+                budgetTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4">Data tidak ditemukan.</td></tr>`; // Updated colspan
+            }
+            data.forEach((d, index) => {
+                // Find the actual index in the original budgetData if it's not the contingency item
+                let actualIndex = budgetData.findIndex(item => item === d);
+                if (d.item === 'Biaya Tak Terduga (Kontingensi)') {
+                    actualIndex = -1; // Mark contingency as non-editable/deletable via these buttons
+                }
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="p-3 text-gray-800 border-b border-gray-200">${d.item}</td>
+                    <td class="p-3 text-gray-600 border-b border-gray-200">${d.kategori}</td>
+                    <td class="p-3 text-gray-800 border-b border-gray-200 text-right font-medium">${formatCurrency(d.total)}</td>
+                    <td class="p-3 text-gray-600 border-b border-gray-200">${d.sumber}</td>
+                    <td class="p-3 text-gray-600 border-b border-gray-200">${d.penanggungJawab || '-'}</td>
+                    <td class="p-3 text-center border-b border-gray-200">
+                        ${actualIndex !== -1 ? `<button data-index="${actualIndex}" class="edit-btn text-blue-600 hover:text-blue-800 font-semibold mr-2">Edit</button>` : ''}
+                        ${actualIndex !== -1 ? `<button data-index="${actualIndex}" class="delete-btn text-red-600 hover:text-red-800 font-semibold">Hapus</button>` : ''}
+                    </td>
+                `;
+                budgetTableBody.appendChild(row);
+            });
+            tableSummary.textContent = `Menampilkan ${data.length} dari ${getFullBudgetData().length} total item anggaran.`;
+        };
+
+        const filterData = () => {
+            let filteredData = [...getFullBudgetData()];
+            const category = categoryFilter.value;
+            const source = sourceFilter.value;
+            const searchTerm = searchBox.value.toLowerCase();
+
+            if (category !== 'all') {
+                filteredData = filteredData.filter(d => d.kategori === category);
+            }
+            if (source !== 'all') {
+                filteredData = filteredData.filter(d => d.sumber === source);
+            }
+            if (searchTerm) {
+                filteredData = filteredData.filter(d => 
+                    d.item.toLowerCase().includes(searchTerm) || 
+                    d.kategori.toLowerCase().includes(searchTerm) ||
+                    (d.penanggungJawab && d.penanggungJawab.toLowerCase().includes(searchTerm)) // Search in penanggungJawab
+                );
+            }
+            renderTable(filteredData);
+        };
+
+        const setupKPIs = () => {
+            const fullData = getFullBudgetData();
+            const totalAnggaran = fullData.reduce((sum, item) => sum + item.total, 0);
+            const danaMasyarakat = fullData.filter(d => d.sumber === 'Masyarakat').reduce((sum, item) => sum + item.total, 0);
+            const danaDonatur = fullData.filter(d => d.sumber === 'Donatur Musiman').reduce((sum, item) => sum + item.total, 0);
+            
+            document.getElementById('totalAnggaran').textContent = formatCurrency(totalAnggaran);
+            document.getElementById('danaMasyarakat').textContent = formatCurrency(danaMasyarakat);
+            document.getElementById('danaDonatur').textContent = formatCurrency(danaDonatur);
+        };
+        
+        const setupCategoryChart = () => {
+            const fullData = getFullBudgetData();
+            const categories = [...new Set(fullData.map(item => item.kategori))];
+            const data = categories.map(cat => {
+                return fullData.filter(item => item.kategori === cat).reduce((sum, item) => sum + item.total, 0);
+            });
+
+            if (categoryChartInstance) {
+                categoryChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#b91c1c', '#1d4ed8', '#047857', '#f59e0b', '#7c3aed', '#ef4444', '#3b82f6', '#10b981', '#fcd34d', '#a855f7'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15,
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += formatCurrency(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        const setupSourceChart = () => {
+            const fullData = getFullBudgetData();
+            const sources = [...new Set(fullData.map(item => item.sumber))];
+            const data = sources.map(src => {
+                return fullData.filter(item => item.sumber === src).reduce((sum, item) => sum + item.total, 0);
+            });
+            
+            if (sourceChartInstance) {
+                sourceChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('sourceChart').getContext('2d');
+            sourceChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sources.map(s => s.replace('/', '/\n')),
+                    datasets: [{
+                        label: 'Total Dana',
+                        data: data,
+                        backgroundColor: ['#1d4ed8', '#047857', '#6b7280', '#b91c1c'],
+                        borderRadius: 6,
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            ticks: {
+                                callback: function(value, index, ticks) {
+                                    return 'Rp ' + (value / 1000000) + ' Jt';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatCurrency(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        const setupAccordion = () => {
+            const container = document.getElementById('accordionContainer');
+            container.innerHTML = ''; 
+            notesData.forEach((note, index) => {
+                const item = document.createElement('div');
+                item.className = 'bg-white border border-gray-200 rounded-lg mb-2 shadow-sm';
+                item.innerHTML = `
+                    <button class="accordion-toggle w-full flex justify-between items-center p-4 text-left font-semibold text-gray-800 hover:bg-gray-50">
+                        <span>${note.title}</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="p-4 pt-0 text-gray-600">${note.content}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            container.addEventListener('click', function(e) {
+                const toggle = e.target.closest('.accordion-toggle');
+                if(toggle) {
+                    const content = toggle.nextElementSibling;
+                    const icon = toggle.querySelector('svg');
+                    
+                    if(content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        icon.classList.remove('rotate-180');
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        icon.classList.add('rotate-180');
+                    }
+                }
+            });
+        };
+
+        const updateAllVisualizations = () => {
+            populateFilters();
+            filterData(); // Re-render table with current filters
+            setupKPIs();
+            setupCategoryChart();
+            setupSourceChart();
+        };
+
+        const clearForm = () => {
+            formKategori.value = '';
+            formItem.value = '';
+            formVolume.value = '';
+            formSatuan.value = '';
+            formHarga.value = '';
+            formSumber.value = '';
+            formPenanggungJawab.value = ''; // Clear new field
+            addItemBtn.classList.remove('hidden');
+            updateItemBtn.classList.add('hidden');
+            cancelEditBtn.classList.add('hidden');
+            currentEditIndex = -1;
+        };
+
+        const populateFormForEdit = (index) => {
+            const itemToEdit = budgetData[index];
+            formKategori.value = itemToEdit.kategori;
+            formItem.value = itemToEdit.item;
+            formVolume.value = itemToEdit.volume;
+            formSatuan.value = itemToEdit.satuan;
+            formHarga.value = itemToEdit.harga;
+            formSumber.value = itemToEdit.sumber;
+            formPenanggungJawab.value = itemToEdit.penanggungJawab || ''; // Populate new field
+
+            addItemBtn.classList.add('hidden');
+            updateItemBtn.classList.remove('hidden');
+            cancelEditBtn.classList.remove('hidden');
+            currentEditIndex = index;
+        };
+
+        budgetForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newItem = {
+                kategori: formKategori.value,
+                item: formItem.value,
+                volume: parseInt(formVolume.value),
+                satuan: formSatuan.value,
+                harga: parseInt(formHarga.value),
+                total: parseInt(formVolume.value) * parseInt(formHarga.value),
+                sumber: formSumber.value,
+                penanggungJawab: formPenanggungJawab.value // Include new field
+            };
+
+            if (currentEditIndex === -1) {
+                // Add new item
+                budgetData.push(newItem);
+            } else {
+                // Update existing item
+                budgetData[currentEditIndex] = newItem;
+            }
+            clearForm();
+            updateAllVisualizations();
+        });
+
+        cancelEditBtn.addEventListener('click', clearForm);
+
+        budgetTableBody.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                populateFormForEdit(index);
+            } else if (e.target.classList.contains('delete-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                if (confirm('Apakah Anda yakin ingin menghapus item ini?')) {
+                    budgetData.splice(index, 1);
+                    updateAllVisualizations();
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllVisualizations();
+            setupAccordion();
+
+            categoryFilter.addEventListener('change', filterData);
+            sourceFilter.addEventListener('change', filterData);
+            searchBox.addEventListener('keyup', filterData);
+        });
+    </script>
+</body>
+</html>
