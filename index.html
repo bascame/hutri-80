@@ -7,14 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutral Harmony -->
-    <!-- Application Structure Plan: Aplikasi ini menggunakan struktur dashboard untuk memberikan wawasan cepat dan kemampuan eksplorasi mendalam, kini dengan kemampuan editing. Struktur ini dipilih karena paling efektif untuk menyajikan data finansial dan memungkinkan manipulasi data. Pengguna pertama kali melihat ringkasan tingkat tinggi (KPI dan grafik), lalu dapat menyelami detail melalui tabel yang dapat difilter dan dicari. Bagian baru 'Manajemen Anggaran' memungkinkan penambahan, pengeditan, dan penghapusan item anggaran. Alur ini memandu pengguna dari gambaran umum ke detail spesifik dan memungkinkan mereka untuk mengelola data secara langsung. Terakhir, catatan penting memberikan konteks. -->
-    <!-- Visualization & Content Choices: 1. Total Anggaran -> Goal: Inform -> KPI Card -> Tampilan angka besar dan jelas -> Visibilitas Cepat -> HTML/Tailwind. 2. Rincian Sumber Dana -> Goal: Inform -> KPI Cards -> Angka besar per sumber dana -> Memisahkan total menjadi komponen utama -> HTML/Tailwind. 3. Alokasi Anggaran per Kategori -> Goal: Compare -> Doughnut Chart -> Interaksi hover menampilkan nilai -> Visualisasi proporsi pengeluaran terbesar -> Chart.js/Canvas. 4. Komposisi Sumber Dana -> Goal: Compare -> Bar Chart -> Interaksi hover menampilkan nilai -> Perbandingan jelas antara sumber dana -> Chart.js/Canvas. 5. Detail Anggaran -> Goal: Organize/Explore -> Interactive Table -> Filter dropdown, search-box, dan tombol edit/hapus -> Pengguna dapat menemukan dan memanipulasi data spesifik dengan cepat -> HTML/Tailwind + JS. 6. Manajemen Anggaran -> Goal: Manage Data -> Form input dengan tombol tambah/perbarui/batal -> Memungkinkan pengguna mengedit data secara langsung -> HTML/Tailwind + JS. 7. Catatan Penting -> Goal: Inform -> Accordion -> Klik untuk buka/tutup -> Menyajikan info tambahan tanpa memakan banyak ruang -> HTML/Tailwind + JS. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f7f4; 
+            background-color: #f8f7f4;
         }
         .chart-container {
             position: relative;
@@ -38,6 +34,62 @@
             overflow: hidden;
             transition: max-height 0.3s ease-out;
         }
+        /* Hidden by default */
+        .hidden {
+            display: none;
+        }
+        /* Simple Modal Styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .modal-buttons button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-buttons .confirm-btn {
+            background-color: #b91c1c;
+            color: white;
+        }
+        .modal-buttons .confirm-btn:hover {
+            background-color: #991b1b;
+        }
+        .modal-buttons .cancel-btn {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .modal-buttons .cancel-btn:hover {
+            background-color: #d1d5db;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -47,147 +99,237 @@
         <header class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Anggaran HUT RI ke-80</h1>
             <p class="mt-2 text-lg text-gray-600">Kp.cemplang Rt 002/002 Desa.Sukamaju Kec.Cibungbulang Kab. Bogor</p>
+            <!-- Navigation Menu -->
+            <nav class="mt-4">
+                <ul class="flex justify-center space-x-6">
+                    <li><a href="#" id="navDashboard" class="text-red-700 font-semibold hover:text-red-900">Dashboard</a></li>
+                    <li><a href="#" id="navManageBudget" class="text-red-700 font-semibold hover:text-red-900">Manajemen Anggaran</a></li>
+                    <li><a href="#" id="navUserDetails" class="text-red-700 font-semibold hover:text-red-900">Rincian Anggaran</a></li>
+                    <li id="adminMenuLink" class="hidden"><a href="#" id="navAdminPanel" class="text-red-700 font-semibold hover:text-red-900">Admin Panel</a></li>
+                    <li><a href="#" id="logoutButton" class="text-gray-600 font-semibold hover:text-gray-800">Logout</a></li>
+                </ul>
+            </nav>
         </header>
 
         <main>
-            <section id="kpi" class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Ringkasan Umum</h2>
-                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
-                        <h3 class="text-lg font-semibold text-gray-500">Total Anggaran</h3>
-                        <p id="totalAnggaran" class="text-4xl font-bold text-red-700 mt-2">Rp 0</p>
+            <!-- Login/Auth Section - Initially visible -->
+            <section id="authSection" class="bg-white p-8 rounded-xl shadow-md border border-gray-200 mb-8 max-w-md mx-auto">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Login</h2>
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" id="username" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
-                        <h3 class="text-lg font-semibold text-gray-500">Dana dari Masyarakat</h3>
-                        <p id="danaMasyarakat" class="text-4xl font-bold text-blue-700 mt-2">Rp 0</p>
+                    <div class="mb-6">
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="password" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
-                        <h3 class="text-lg font-semibold text-gray-500">Dana dari Donatur</h3>
-                        <p id="danaDonatur" class="text-4xl font-bold text-green-700 mt-2">Rp 0</p>
-                    </div>
-                </div>
-            </section>
-            
-            <section id="visualizations" class="mb-8">
-                 <h2 class="text-2xl font-bold text-gray-900 mb-4">Visualisasi Data</h2>
-                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                        <h3 class="text-xl font-semibold text-center mb-4">Alokasi Anggaran per Kategori</h3>
-                        <div class="chart-container">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                        <h3 class="text-xl font-semibold text-center mb-4">Komposisi Sumber Dana</h3>
-                         <div class="chart-container">
-                            <canvas id="sourceChart"></canvas>
-                        </div>
-                    </div>
-                 </div>
-            </section>
-
-            <section id="manage-budget" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Manajemen Anggaran</h2>
-                <p class="mb-6 text-gray-600">Gunakan formulir di bawah ini untuk menambah item anggaran baru atau memperbarui item yang sudah ada.</p>
-                <form id="budgetForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                        <label for="formKategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                        <input type="text" id="formKategori" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                    </div>
-                    <div>
-                        <label for="formItem" class="block text-sm font-medium text-gray-700 mb-1">Item</label>
-                        <input type="text" id="formItem" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                    </div>
-                    <div>
-                        <label for="formVolume" class="block text-sm font-medium text-gray-700 mb-1">Volume/Jumlah</label>
-                        <input type="number" id="formVolume" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                    </div>
-                    <div>
-                        <label for="formSatuan" class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
-                        <input type="text" id="formSatuan" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                    </div>
-                    <div>
-                        <label for="formHarga" class="block text-sm font-medium text-gray-700 mb-1">Harga Satuan (Rp)</label>
-                        <input type="number" id="formHarga" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                    </div>
-                    <div>
-                        <label for="formSumber" class="block text-sm font-medium text-gray-700 mb-1">Sumber Dana</label>
-                        <select id="formSumber" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                            <option value="">Pilih Sumber</option>
-                            <option value="Masyarakat">Masyarakat</option>
-                            <option value="Donatur Musiman">Donatur Musiman</option>
-                            <option value="Masyarakat/Donatur">Masyarakat/Donatur</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="formPenanggungJawab" class="block text-sm font-medium text-gray-700 mb-1">Penanggung Jawab</label>
-                        <input type="text" id="formPenanggungJawab" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                    </div>
-                    <div class="col-span-full flex gap-4 mt-4">
-                        <button type="submit" id="addItemBtn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-md">Tambah Item</button>
-                        <button type="button" id="updateItemBtn" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hidden">Perbarui Item</button>
-                        <button type="button" id="cancelEditBtn" class="px-6 py-2 bg-gray-400 text-gray-800 font-semibold rounded-lg hover:bg-gray-500 transition-colors shadow-md hidden">Batal Edit</button>
-                    </div>
+                    <button type="submit" class="w-full px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-md">Login</button>
+                    <p id="loginMessage" class="text-center mt-4 text-sm text-red-500"></p>
                 </form>
             </section>
 
-            <section id="details" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Rincian Detail Anggaran</h2>
-                <p class="mb-6 text-gray-600">Gunakan filter di bawah untuk menjelajahi setiap item dalam anggaran. Anda dapat menyaring berdasarkan kategori pengeluaran atau sumber pendanaan, serta mencari item spesifik untuk analisis yang lebih mendalam.</p>
-                <div class="flex flex-col md:flex-row gap-4 mb-6">
-                    <div class="flex-1">
-                        <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter Kategori</label>
-                        <select id="categoryFilter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                            <option value="all">Semua Kategori</option>
-                        </select>
+            <!-- Main Dashboard Content - Initially hidden -->
+            <div id="appContent" class="hidden">
+                <section id="kpi" class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Ringkasan Umum</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                            <h3 class="text-lg font-semibold text-gray-500">Total Anggaran</h3>
+                            <p id="totalAnggaran" class="text-4xl font-bold text-red-700 mt-2">Rp 0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                            <h3 class="text-lg font-semibold text-gray-500">Dana dari Masyarakat</h3>
+                            <p id="danaMasyarakat" class="text-4xl font-bold text-blue-700 mt-2">Rp 0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                            <h3 class="text-lg font-semibold text-gray-500">Dana dari Donatur</h3>
+                            <p id="danaDonatur" class="text-4xl font-bold text-green-700 mt-2">Rp 0</p>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <label for="sourceFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter Sumber Dana</label>
-                        <select id="sourceFilter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                            <option value="all">Semua Sumber</option>
-                        </select>
+                </section>
+
+                <section id="visualizations" class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Visualisasi Data</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h3 class="text-xl font-semibold text-center mb-4">Alokasi Anggaran per Kategori</h3>
+                            <div class="chart-container">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h3 class="text-xl font-semibold text-center mb-4">Komposisi Sumber Dana</h3>
+                            <div class="chart-container">
+                                <canvas id="sourceChart"></canvas>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <label for="searchBox" class="block text-sm font-medium text-gray-700 mb-1">Cari Item</label>
-                        <input type="text" id="searchBox" placeholder="Contoh: Sewa Panggung" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </section>
+
+                <section id="manage-budget" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8 hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Manajemen Anggaran</h2>
+                    <p class="mb-6 text-gray-600">Gunakan formulir di bawah ini untuk menambah item anggaran baru atau memperbarui item yang sudah ada.</p>
+                    <form id="budgetForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label for="formKategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <input type="text" id="formKategori" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div>
+                            <label for="formItem" class="block text-sm font-medium text-gray-700 mb-1">Item</label>
+                            <input type="text" id="formItem" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div>
+                            <label for="formVolume" class="block text-sm font-medium text-gray-700 mb-1">Volume/Jumlah</label>
+                            <input type="number" id="formVolume" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div>
+                            <label for="formSatuan" class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
+                            <input type="text" id="formSatuan" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div>
+                            <label for="formHarga" class="block text-sm font-medium text-gray-700 mb-1">Harga Satuan (Rp)</label>
+                            <input type="number" id="formHarga" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div>
+                            <label for="formSumber" class="block text-sm font-medium text-gray-700 mb-1">Sumber Dana</label>
+                            <select id="formSumber" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                                <option value="">Pilih Sumber</option>
+                                <option value="Masyarakat">Masyarakat</option>
+                                <option value="Donatur Musiman">Donatur Musiman</option>
+                                <option value="Masyarakat/Donatur">Masyarakat/Donatur</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="formPenanggungJawab" class="block text-sm font-medium text-gray-700 mb-1">Penanggung Jawab</label>
+                            <input type="text" id="formPenanggungJawab" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div class="col-span-full flex gap-4 mt-4">
+                            <button type="submit" id="addItemBtn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-md">Tambah Item</button>
+                            <button type="button" id="updateItemBtn" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hidden">Perbarui Item</button>
+                            <button type="button" id="cancelEditBtn" class="px-6 py-2 bg-gray-400 text-gray-800 font-semibold rounded-lg hover:bg-gray-500 transition-colors shadow-md hidden">Batal Edit</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section id="details" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Rincian Detail Anggaran</h2>
+                    <p class="mb-6 text-gray-600">Gunakan filter di bawah untuk menjelajahi setiap item dalam anggaran. Anda dapat menyaring berdasarkan kategori pengeluaran atau sumber pendanaan, serta mencari item spesifik untuk analisis yang lebih mendalam.</p>
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <div class="flex-1">
+                            <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter Kategori</label>
+                            <select id="categoryFilter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="all">Semua Kategori</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label for="sourceFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter Sumber Dana</label>
+                            <select id="sourceFilter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="all">Semua Sumber</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label for="searchBox" class="block text-sm font-medium text-gray-700 mb-1">Cari Item</label>
+                            <input type="text" id="searchBox" placeholder="Contoh: Sewa Panggung" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                        </div>
                     </div>
-                </div>
 
-                <div class="table-responsive-wrapper">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Item</th>
-                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Kategori</th>
-                                <th class="p-3 font-semibold text-sm text-gray-700 border-b text-right">Total Biaya</th>
-                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Sumber Dana</th>
-                                <th class="p-3 font-semibold text-sm text-gray-700 border-b">Penanggung Jawab</th>
-                                <th class="p-3 font-semibold text-sm text-gray-700 border-b text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="budgetTable">
-                        </tbody>
-                    </table>
-                </div>
-                <p id="tableSummary" class="text-sm text-gray-500 mt-4"></p>
-            </section>
+                    <div class="table-responsive-wrapper">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Item</th>
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Kategori</th>
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b text-right">Total Biaya</th>
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Sumber Dana</th>
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Penanggung Jawab</th>
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="budgetTable">
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="tableSummary" class="text-sm text-gray-500 mt-4"></p>
+                </section>
 
-            <section id="notes" class="mt-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Catatan Penting</h2>
-                <div id="accordionContainer">
-                </div>
-            </section>
+                <section id="adminPanel" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8 hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Panel Admin: Manajemen Pengguna</h2>
+                    <p class="mb-6 text-gray-600">Tambahkan atau kelola pengguna yang dapat mengakses sistem anggaran.</p>
 
+                    <form id="addUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="newUsername" class="block text-sm font-medium text-gray-700 mb-1">Username Baru</label>
+                            <input type="text" id="newUsername" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div>
+                            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+                            <input type="password" id="newPassword" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                        </div>
+                        <div>
+                            <label for="newUserRole" class="block text-sm font-medium text-gray-700 mb-1">Peran Pengguna</label>
+                            <select id="newUserRole" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-span-full">
+                            <button type="submit" class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-md">Tambah Pengguna</button>
+                        </div>
+                    </form>
+
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Daftar Pengguna</h3>
+                    <div class="table-responsive-wrapper">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Username</th>
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Peran</th>
+                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                                <!-- User rows will be injected here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="userManagementMessage" class="text-sm text-red-500 mt-4"></p>
+                </section>
+
+                <section id="notes" class="mt-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Catatan Penting</h2>
+                    <div id="accordionContainer">
+                    </div>
+                </section>
+            </div>
         </main>
-        
+
         <footer class="text-center mt-12 text-gray-500 text-sm">
             <p>Dibuat untuk Panitia HUT RI ke-80 | &copy; 2025</p>
         </footer>
 
     </div>
 
+    <!-- Custom Modal for Alerts/Confirms -->
+    <div id="customModal" class="modal hidden">
+        <div class="modal-content">
+            <p id="modalMessage" class="text-lg text-gray-800"></p>
+            <div id="modalButtons" class="modal-buttons">
+                <!-- Buttons will be injected here -->
+            </div>
+        </div>
+    </div>
+
     <script>
-        let budgetData = []; // Data anggaran awal dikosongkan
+        // --- HARDCODED ADMIN CREDENTIALS (FOR DEMONSTRATION ONLY - NOT SECURE) ---
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'agustus2025@';
+        // -------------------------------------------------------------------------
+
+        let budgetData = [];
+        let users = []; // Client-side store for mock user management
+        let currentUser = null; // Stores logged-in user info (e.g., { username: 'admin', role: 'admin' })
+        let autoSaveInterval;
 
         const notesData = [
             { title: "Fleksibilitas Anggaran", content: "Angka-angka di atas adalah estimasi dan bisa disesuaikan dengan skala acara, ketersediaan dana, serta negosiasi dengan vendor." },
@@ -195,6 +337,29 @@
             { title: "Transparansi", content: "Penting untuk selalu transparan dalam pengelolaan dana, terutama yang berasal dari masyarakat dan donatur, dengan membuat laporan keuangan sederhana yang bisa diakses." },
             { title: "Negosiasi", content: "Jangan ragu untuk bernegosiasi harga dengan penyedia jasa atau penjual barang untuk mendapatkan penawaran terbaik." }
         ];
+
+        // DOM Elements
+        const authSection = document.getElementById('authSection');
+        const appContent = document.getElementById('appContent');
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginMessage = document.getElementById('loginMessage');
+        const logoutButton = document.getElementById('logoutButton');
+
+        // Navigation elements
+        const navDashboard = document.getElementById('navDashboard');
+        const navManageBudget = document.getElementById('navManageBudget');
+        const navUserDetails = document.getElementById('navUserDetails');
+        const navAdminPanel = document.getElementById('navAdminPanel');
+        const adminMenuLink = document.getElementById('adminMenuLink');
+
+        // Sections
+        const kpiSection = document.getElementById('kpi');
+        const visualizationsSection = document.getElementById('visualizations');
+        const manageBudgetSection = document.getElementById('manage-budget');
+        const detailsSection = document.getElementById('details');
+        const adminPanelSection = document.getElementById('adminPanel');
 
         const categoryFilter = document.getElementById('categoryFilter');
         const sourceFilter = document.getElementById('sourceFilter');
@@ -208,30 +373,176 @@
         const formSatuan = document.getElementById('formSatuan');
         const formHarga = document.getElementById('formHarga');
         const formSumber = document.getElementById('formSumber');
-        const formPenanggungJawab = document.getElementById('formPenanggungJawab'); // New input
+        const formPenanggungJawab = document.getElementById('formPenanggungJawab');
         const addItemBtn = document.getElementById('addItemBtn');
         const updateItemBtn = document.getElementById('updateItemBtn');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
         const budgetForm = document.getElementById('budgetForm');
 
+        // Admin Panel Elements
+        const addUserForm = document.getElementById('addUserForm');
+        const newUsernameInput = document.getElementById('newUsername');
+        const newPasswordInput = document.getElementById('newPassword');
+        const newUserRoleSelect = document.getElementById('newUserRole');
+        const usersTableBody = document.getElementById('usersTable');
+        const userManagementMessage = document.getElementById('userManagementMessage');
+
+        // Custom Modal Elements
+        const customModal = document.getElementById('customModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalButtons = document.getElementById('modalButtons');
+
         let currentEditIndex = -1;
         let categoryChartInstance;
         let sourceChartInstance;
         
+        // --- Custom Modal Functions (replaces alert/confirm) ---
+        const showModal = (message, type = 'alert', onConfirm = null) => {
+            modalMessage.textContent = message;
+            modalButtons.innerHTML = ''; // Clear previous buttons
+
+            if (type === 'alert') {
+                const okButton = document.createElement('button');
+                okButton.textContent = 'OK';
+                okButton.className = 'confirm-btn';
+                okButton.onclick = () => customModal.classList.add('hidden');
+                modalButtons.appendChild(okButton);
+            } else if (type === 'confirm') {
+                const confirmButton = document.createElement('button');
+                confirmButton.textContent = 'Ya';
+                confirmButton.className = 'confirm-btn';
+                confirmButton.onclick = () => {
+                    customModal.classList.add('hidden');
+                    if (onConfirm) onConfirm(true);
+                };
+                modalButtons.appendChild(confirmButton);
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Tidak';
+                cancelButton.className = 'cancel-btn';
+                cancelButton.onclick = () => {
+                    customModal.classList.add('hidden');
+                    if (onConfirm) onConfirm(false);
+                };
+                modalButtons.appendChild(cancelButton);
+            }
+            customModal.classList.remove('hidden');
+        };
+
         const formatCurrency = (amount) => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
         };
 
+        // --- Authentication and Authorization Functions ---
+
+        const showSection = (section) => {
+            const sections = [kpiSection, visualizationsSection, manageBudgetSection, detailsSection, adminPanelSection];
+            sections.forEach(s => s.classList.add('hidden'));
+            section.classList.remove('hidden');
+        };
+
+        const checkAuth = () => {
+            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (storedUser) {
+                currentUser = storedUser;
+                showAppContent();
+                updateNavigationVisibility();
+                loadBudgetData(); // Load data from local storage
+                loadUsersData(); // Load users from local storage
+                startAutoSave();
+            } else {
+                showAuthSection();
+            }
+        };
+
+        const showAuthSection = () => {
+            authSection.classList.remove('hidden');
+            appContent.classList.add('hidden');
+        };
+
+        const showAppContent = () => {
+            authSection.classList.add('hidden');
+            appContent.classList.remove('hidden');
+            // Default to dashboard view
+            showSection(kpiSection);
+            visualizationsSection.classList.remove('hidden'); // Visualizations are part of dashboard
+        };
+
+        const login = (username, password) => {
+            loginMessage.textContent = 'Logging in...';
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                currentUser = { id: 'admin123', username: ADMIN_USERNAME, role: 'admin' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                loginMessage.textContent = '';
+                showAppContent();
+                updateNavigationVisibility();
+                loadBudgetData();
+                loadUsersData(); // Ensure users data is loaded for admin
+                startAutoSave();
+            } else {
+                loginMessage.textContent = 'Login failed. Invalid credentials.';
+                currentUser = null;
+            }
+        };
+
+        const logout = () => {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            clearInterval(autoSaveInterval); // Stop auto-save
+            budgetData = []; // Clear data on logout
+            users = []; // Clear users on logout (except the default admin if it's the only one)
+            updateAllVisualizations(); // Clear UI
+            showAuthSection();
+            updateNavigationVisibility();
+        };
+
+        const updateNavigationVisibility = () => {
+            if (currentUser && currentUser.role === 'admin') {
+                adminMenuLink.classList.remove('hidden');
+            } else {
+                adminMenuLink.classList.add('hidden');
+            }
+        };
+
+        // --- Data Loading and Saving (Local Storage Mock) ---
+
+        const loadBudgetData = () => {
+            const storedBudgetData = localStorage.getItem('budgetData');
+            if (storedBudgetData) {
+                budgetData = JSON.parse(storedBudgetData);
+            } else {
+                // Initial dummy data if no data exists
+                budgetData = [
+                    { kategori: 'Sewa', item: 'Sewa Panggung', volume: 1, satuan: 'Unit', harga: 5000000, total: 5000000, sumber: 'Masyarakat', penanggungJawab: 'Bapak RT' },
+                    { kategori: 'Perlengkapan', item: 'Sound System', volume: 1, satuan: 'Unit', harga: 3000000, total: 3000000, sumber: 'Donatur Musiman', penanggungJawab: 'Panitia' },
+                    { kategori: 'Konsumsi', item: 'Nasi Kotak', volume: 100, satuan: 'Pcs', harga: 25000, total: 2500000, sumber: 'Masyarakat', penanggungJawab: 'Ibu PKK' },
+                    { kategori: 'Hadiah', item: 'Hadiah Lomba Anak', volume: 1, satuan: 'Paket', harga: 1500000, total: 1500000, sumber: 'Donatur Musiman', penanggungJawab: 'Panitia' },
+                    { kategori: 'Dekorasi', item: 'Bendera Merah Putih', volume: 20, satuan: 'Pcs', harga: 15000, total: 300000, sumber: 'Masyarakat', penanggungJawab: 'Karang Taruna' }
+                ];
+            }
+            updateAllVisualizations();
+        };
+
+        const saveBudgetData = () => {
+            localStorage.setItem('budgetData', JSON.stringify(budgetData));
+            console.log('Budget data auto-saved to local storage.');
+        };
+
+        const startAutoSave = () => {
+            clearInterval(autoSaveInterval); // Clear any existing interval
+            autoSaveInterval = setInterval(saveBudgetData, 30000); // Save every 30 seconds
+        };
+
+        // --- Budget Calculation & Rendering ---
+
         const getFullBudgetData = () => {
-            // Filter out existing contingency item from budgetData before calculating baseTotal
             const nonContingencyData = budgetData.filter(item => item.item !== 'Biaya Tak Terduga (Kontingensi)');
             const baseTotal = nonContingencyData.reduce((sum, item) => sum + item.total, 0);
-            const contingency = Math.round(baseTotal * 0.10); // 10% of base total
+            const contingency = Math.round(baseTotal * 0.10);
 
-            const fullData = [...nonContingencyData]; // Start with non-contingency items
+            const fullData = [...nonContingencyData];
             
-            // Add or update contingency item
-            if (baseTotal > 0) { // Only add contingency if there are other items
+            if (baseTotal > 0) {
                 fullData.push({
                     kategori: 'Lain-lain',
                     item: 'Biaya Tak Terduga (Kontingensi)',
@@ -240,7 +551,7 @@
                     harga: contingency,
                     total: contingency,
                     sumber: 'Masyarakat/Donatur',
-                    penanggungJawab: 'Panitia' // Default for contingency
+                    penanggungJawab: 'Panitia'
                 });
             }
             
@@ -272,13 +583,12 @@
         const renderTable = (data) => {
             budgetTableBody.innerHTML = '';
             if (data.length === 0) {
-                budgetTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4">Data tidak ditemukan.</td></tr>`; // Updated colspan
+                budgetTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4">Data tidak ditemukan.</td></tr>`;
             }
             data.forEach((d, index) => {
-                // Find the actual index in the original budgetData if it's not the contingency item
                 let actualIndex = budgetData.findIndex(item => item === d);
                 if (d.item === 'Biaya Tak Terduga (Kontingensi)') {
-                    actualIndex = -1; // Mark contingency as non-editable/deletable via these buttons
+                    actualIndex = -1;
                 }
 
                 const row = document.createElement('tr');
@@ -290,8 +600,9 @@
                     <td class="p-3 text-gray-600 border-b border-gray-200">${d.sumber}</td>
                     <td class="p-3 text-gray-600 border-b border-gray-200">${d.penanggungJawab || '-'}</td>
                     <td class="p-3 text-center border-b border-gray-200">
-                        ${actualIndex !== -1 ? `<button data-index="${actualIndex}" class="edit-btn text-blue-600 hover:text-blue-800 font-semibold mr-2">Edit</button>` : ''}
-                        ${actualIndex !== -1 ? `<button data-index="${actualIndex}" class="delete-btn text-red-600 hover:text-red-800 font-semibold">Hapus</button>` : ''}
+                        ${(currentUser && currentUser.role === 'admin' && actualIndex !== -1) ? `<button data-index="${actualIndex}" class="edit-btn text-blue-600 hover:text-blue-800 font-semibold mr-2">Edit</button>` : ''}
+                        ${(currentUser && currentUser.role === 'admin' && actualIndex !== -1) ? `<button data-index="${actualIndex}" class="delete-btn text-red-600 hover:text-red-800 font-semibold">Hapus</button>` : ''}
+                        ${(currentUser && currentUser.role !== 'admin' && actualIndex !== -1) ? `<span class="text-gray-500 text-xs">Hanya Admin</span>` : ''}
                     </td>
                 `;
                 budgetTableBody.appendChild(row);
@@ -315,7 +626,7 @@
                 filteredData = filteredData.filter(d => 
                     d.item.toLowerCase().includes(searchTerm) || 
                     d.kategori.toLowerCase().includes(searchTerm) ||
-                    (d.penanggungJawab && d.penanggungJawab.toLowerCase().includes(searchTerm)) // Search in penanggungJawab
+                    (d.penanggungJawab && d.penanggungJawab.toLowerCase().includes(searchTerm))
                 );
             }
             renderTable(filteredData);
@@ -476,7 +787,7 @@
 
         const updateAllVisualizations = () => {
             populateFilters();
-            filterData(); // Re-render table with current filters
+            filterData();
             setupKPIs();
             setupCategoryChart();
             setupSourceChart();
@@ -489,7 +800,7 @@
             formSatuan.value = '';
             formHarga.value = '';
             formSumber.value = '';
-            formPenanggungJawab.value = ''; // Clear new field
+            formPenanggungJawab.value = '';
             addItemBtn.classList.remove('hidden');
             updateItemBtn.classList.add('hidden');
             cancelEditBtn.classList.add('hidden');
@@ -504,7 +815,7 @@
             formSatuan.value = itemToEdit.satuan;
             formHarga.value = itemToEdit.harga;
             formSumber.value = itemToEdit.sumber;
-            formPenanggungJawab.value = itemToEdit.penanggungJawab || ''; // Populate new field
+            formPenanggungJawab.value = itemToEdit.penanggungJawab || '';
 
             addItemBtn.classList.add('hidden');
             updateItemBtn.classList.remove('hidden');
@@ -512,8 +823,151 @@
             currentEditIndex = index;
         };
 
+        // --- User Management Functions (Admin Panel - Local Storage Mock) ---
+
+        const loadUsersData = () => {
+            const storedUsers = localStorage.getItem('users');
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+            } else {
+                // Default admin user if no users exist
+                users = [{ id: 'admin123', username: ADMIN_USERNAME, role: 'admin' }];
+            }
+            renderUsersTable(users);
+        };
+
+        const saveUsersData = () => {
+            localStorage.setItem('users', JSON.stringify(users));
+            console.log('User data auto-saved to local storage.');
+        };
+
+        const fetchUsers = () => {
+            if (!currentUser || currentUser.role !== 'admin') {
+                userManagementMessage.textContent = 'Akses ditolak. Hanya admin yang dapat melihat pengguna.';
+                return;
+            }
+            // In a real app, this would be an API call. Here, we just use the local 'users' array.
+            renderUsersTable(users);
+            userManagementMessage.textContent = '';
+        };
+
+        const renderUsersTable = (usersToRender) => {
+            usersTableBody.innerHTML = '';
+            if (usersToRender.length === 0) {
+                usersTableBody.innerHTML = `<tr><td colspan="3" class="text-center p-4">Belum ada pengguna terdaftar.</td></tr>`;
+                return;
+            }
+            usersToRender.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="p-3 text-gray-800 border-b border-gray-200">${user.username}</td>
+                    <td class="p-3 text-gray-600 border-b border-gray-200">${user.role}</td>
+                    <td class="p-3 text-center border-b border-gray-200">
+                        ${user.username !== currentUser.username ? `<button data-id="${user.id}" class="delete-user-btn text-red-600 hover:text-red-800 font-semibold">Hapus</button>` : ''}
+                    </td>
+                `;
+                usersTableBody.appendChild(row);
+            });
+        };
+
+        const addUser = (username, password, role) => {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showModal('Akses ditolak. Hanya admin yang dapat menambah pengguna.', 'alert');
+                return;
+            }
+            if (users.some(u => u.username === username)) {
+                userManagementMessage.textContent = `Username '${username}' sudah ada.`;
+                return;
+            }
+
+            const newUser = {
+                id: 'user_' + Date.now(), // Simple unique ID
+                username: username,
+                password: password, // In real app, this would be hashed!
+                role: role
+            };
+            users.push(newUser);
+            saveUsersData(); // Save to local storage
+            userManagementMessage.textContent = `Pengguna '${username}' berhasil ditambahkan.`;
+            addUserForm.reset();
+            fetchUsers(); // Refresh the list
+        };
+
+        const deleteUser = (userId) => {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showModal('Akses ditolak. Hanya admin yang dapat menghapus pengguna.', 'alert');
+                return;
+            }
+            showModal('Apakah Anda yakin ingin menghapus pengguna ini?', 'confirm', (confirmed) => {
+                if (confirmed) {
+                    const initialLength = users.length;
+                    users = users.filter(u => u.id !== userId);
+                    if (users.length < initialLength) {
+                        saveUsersData(); // Save to local storage
+                        userManagementMessage.textContent = 'Pengguna berhasil dihapus.';
+                        fetchUsers(); // Refresh the list
+                    } else {
+                        userManagementMessage.textContent = 'Gagal menghapus pengguna.';
+                    }
+                }
+            });
+        };
+
+        // --- Event Listeners ---
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+            login(username, password);
+        });
+
+        logoutButton.addEventListener('click', logout);
+
+        navDashboard.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(kpiSection);
+            visualizationsSection.classList.remove('hidden'); // Ensure visualizations are also shown
+            updateAllVisualizations(); // Refresh data on dashboard view
+        });
+
+        navManageBudget.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(manageBudgetSection);
+            // Ensure only admin can add/edit
+            if (currentUser && currentUser.role === 'admin') {
+                budgetForm.classList.remove('hidden');
+            } else {
+                budgetForm.classList.add('hidden');
+                showModal('Anda tidak memiliki izin untuk mengelola anggaran. Hanya admin yang dapat.', 'alert');
+            }
+            clearForm(); // Clear form on navigation
+        });
+
+        navUserDetails.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(detailsSection);
+            filterData(); // Ensure table is rendered
+        });
+
+        navAdminPanel.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentUser && currentUser.role === 'admin') {
+                showSection(adminPanelSection);
+                fetchUsers(); // Load users for admin
+            } else {
+                showModal('Akses ditolak. Anda bukan admin.', 'alert');
+            }
+        });
+
         budgetForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            if (!currentUser || currentUser.role !== 'admin') {
+                showModal('Hanya admin yang dapat menambah atau memperbarui item anggaran.', 'alert');
+                return;
+            }
+
             const newItem = {
                 kategori: formKategori.value,
                 item: formItem.value,
@@ -522,39 +976,60 @@
                 harga: parseInt(formHarga.value),
                 total: parseInt(formVolume.value) * parseInt(formHarga.value),
                 sumber: formSumber.value,
-                penanggungJawab: formPenanggungJawab.value // Include new field
+                penanggungJawab: formPenanggungJawab.value
             };
 
             if (currentEditIndex === -1) {
-                // Add new item
                 budgetData.push(newItem);
             } else {
-                // Update existing item
                 budgetData[currentEditIndex] = newItem;
             }
             clearForm();
             updateAllVisualizations();
+            saveBudgetData(); // Explicitly save after adding/editing
         });
 
         cancelEditBtn.addEventListener('click', clearForm);
 
         budgetTableBody.addEventListener('click', function(e) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showModal('Hanya admin yang dapat mengedit atau menghapus item anggaran.', 'alert');
+                return;
+            }
+
             if (e.target.classList.contains('edit-btn')) {
                 const index = parseInt(e.target.dataset.index);
                 populateFormForEdit(index);
             } else if (e.target.classList.contains('delete-btn')) {
                 const index = parseInt(e.target.dataset.index);
-                if (confirm('Apakah Anda yakin ingin menghapus item ini?')) {
-                    budgetData.splice(index, 1);
-                    updateAllVisualizations();
-                }
+                showModal('Apakah Anda yakin ingin menghapus item ini?', 'confirm', (confirmed) => {
+                    if (confirmed) {
+                        budgetData.splice(index, 1);
+                        updateAllVisualizations();
+                        saveBudgetData(); // Explicitly save after deleting
+                    }
+                });
+            }
+        });
+
+        addUserForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newUsername = newUsernameInput.value;
+            const newPassword = newPasswordInput.value;
+            const newUserRole = newUserRoleSelect.value;
+            addUser(newUsername, newPassword, newUserRole);
+        });
+
+        usersTableBody.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-user-btn')) {
+                const userId = e.target.dataset.id;
+                deleteUser(userId);
             }
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            updateAllVisualizations();
-            setupAccordion();
-
+            checkAuth(); // Initial check for login state
+            setupAccordion(); // Accordion doesn't depend on budget data
             categoryFilter.addEventListener('change', filterData);
             sourceFilter.addEventListener('change', filterData);
             searchBox.addEventListener('keyup', filterData);
