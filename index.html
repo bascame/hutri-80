@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f7f4;
+            background-color: #f8f7f4; /* Light, warm background */
         }
         .chart-container {
             position: relative;
@@ -26,8 +26,10 @@
             }
         }
         .table-responsive-wrapper {
-            overflow-x: auto;
+            overflow-x: auto; /* Enable horizontal scrolling for tables */
             -webkit-overflow-scrolling: touch;
+            border-radius: 0.75rem; /* Rounded corners for the scrollable area */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Subtle shadow */
         }
         .accordion-content {
             max-height: 0;
@@ -94,27 +96,27 @@
 </head>
 <body class="text-gray-800">
 
-    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
 
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Anggaran HUT RI ke-80</h1>
-            <p class="mt-2 text-lg text-gray-600">Kp.cemplang Rt 002/002 Desa.Sukamaju Kec.Cibungbulang Kab. Bogor</p>
+        <header class="text-center mb-8 md:mb-10">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">Anggaran HUT RI ke-80</h1>
+            <p class="mt-2 text-base sm:text-lg text-gray-600">Kp.cemplang Rt 002/002 Desa.Sukamaju Kec.Cibungbulang Kab. Bogor</p>
             <!-- Navigation Menu -->
-            <nav class="mt-4">
-                <ul class="flex justify-center space-x-6">
-                    <li><a href="#" id="navDashboard" class="text-red-700 font-semibold hover:text-red-900">Dashboard</a></li>
-                    <li><a href="#" id="navManageBudget" class="text-red-700 font-semibold hover:text-red-900">Manajemen Anggaran</a></li>
-                    <li><a href="#" id="navUserDetails" class="text-red-700 font-semibold hover:text-red-900">Rincian Anggaran</a></li>
-                    <li id="adminMenuLink" class="hidden"><a href="#" id="navAdminPanel" class="text-red-700 font-semibold hover:text-red-900">Admin Panel</a></li>
-                    <li><a href="#" id="logoutButton" class="text-gray-600 font-semibold hover:text-gray-800">Logout</a></li>
+            <nav class="mt-6">
+                <ul class="flex flex-wrap justify-center space-x-4 sm:space-x-6">
+                    <li><a href="#" id="navDashboard" class="px-3 py-2 rounded-lg text-red-700 font-semibold hover:bg-red-100 hover:text-red-900 transition-colors duration-200">Dashboard</a></li>
+                    <li><a href="#" id="navManageBudget" class="px-3 py-2 rounded-lg text-red-700 font-semibold hover:bg-red-100 hover:text-red-900 transition-colors duration-200">Manajemen Anggaran</a></li>
+                    <li><a href="#" id="navUserDetails" class="px-3 py-2 rounded-lg text-red-700 font-semibold hover:bg-red-100 hover:text-red-900 transition-colors duration-200">Rincian Anggaran</a></li>
+                    <li id="adminMenuLink" class="hidden"><a href="#" id="navAdminPanel" class="px-3 py-2 rounded-lg text-red-700 font-semibold hover:bg-red-100 hover:text-red-900 transition-colors duration-200">Admin Panel</a></li>
+                    <li><a href="#" id="logoutButton" class="px-3 py-2 rounded-lg text-gray-600 font-semibold hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200">Logout</a></li>
                 </ul>
             </nav>
         </header>
 
         <main>
             <!-- Login/Auth Section - Initially visible -->
-            <section id="authSection" class="bg-white p-8 rounded-xl shadow-md border border-gray-200 mb-8 max-w-md mx-auto">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Login</h2>
+            <section id="authSection" class="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 mb-8 max-w-md mx-auto">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">Login</h2>
                 <form id="loginForm">
                     <div class="mb-4">
                         <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
@@ -131,35 +133,35 @@
 
             <!-- Main Dashboard Content - Initially hidden -->
             <div id="appContent" class="hidden">
-                <section id="kpi" class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Ringkasan Umum</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                <section id="kpi" class="mb-8 lg:mb-10">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Ringkasan Umum</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col justify-center items-center text-center">
                             <h3 class="text-lg font-semibold text-gray-500">Total Anggaran</h3>
-                            <p id="totalAnggaran" class="text-4xl font-bold text-red-700 mt-2">Rp 0</p>
+                            <p id="totalAnggaran" class="text-3xl sm:text-4xl font-bold text-red-700 mt-2">Rp 0</p>
                         </div>
-                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col justify-center items-center text-center">
                             <h3 class="text-lg font-semibold text-gray-500">Dana dari Masyarakat</h3>
-                            <p id="danaMasyarakat" class="text-4xl font-bold text-blue-700 mt-2">Rp 0</p>
+                            <p id="danaMasyarakat" class="text-3xl sm:text-4xl font-bold text-blue-700 mt-2">Rp 0</p>
                         </div>
-                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center">
+                        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col justify-center items-center text-center">
                             <h3 class="text-lg font-semibold text-gray-500">Dana dari Donatur</h3>
-                            <p id="danaDonatur" class="text-4xl font-bold text-green-700 mt-2">Rp 0</p>
+                            <p id="danaDonatur" class="text-3xl sm:text-4xl font-bold text-green-700 mt-2">Rp 0</p>
                         </div>
                     </div>
                 </section>
 
-                <section id="visualizations" class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Visualisasi Data</h2>
+                <section id="visualizations" class="mb-8 lg:mb-10">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Visualisasi Data</h2>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                            <h3 class="text-xl font-semibold text-center mb-4">Alokasi Anggaran per Kategori</h3>
+                        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                            <h3 class="text-lg sm:text-xl font-semibold text-center mb-4">Alokasi Anggaran per Kategori</h3>
                             <div class="chart-container">
                                 <canvas id="categoryChart"></canvas>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                            <h3 class="text-xl font-semibold text-center mb-4">Komposisi Sumber Dana</h3>
+                        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                            <h3 class="text-lg sm:text-xl font-semibold text-center mb-4">Komposisi Sumber Dana</h3>
                             <div class="chart-container">
                                 <canvas id="sourceChart"></canvas>
                             </div>
@@ -167,9 +169,9 @@
                     </div>
                 </section>
 
-                <section id="manage-budget" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8 hidden">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Manajemen Anggaran</h2>
-                    <p class="mb-6 text-gray-600">Gunakan formulir di bawah ini untuk menambah item anggaran baru atau memperbarui item yang sudah ada.</p>
+                <section id="manage-budget" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8 lg:mb-10 hidden">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Manajemen Anggaran</h2>
+                    <p class="mb-6 text-gray-600 text-sm sm:text-base">Gunakan formulir di bawah ini untuk menambah item anggaran baru atau memperbarui item yang sudah ada.</p>
                     <form id="budgetForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                             <label for="formKategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
@@ -204,7 +206,7 @@
                             <label for="formPenanggungJawab" class="block text-sm font-medium text-gray-700 mb-1">Penanggung Jawab</label>
                             <input type="text" id="formPenanggungJawab" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
                         </div>
-                        <div class="col-span-full flex gap-4 mt-4">
+                        <div class="col-span-full flex flex-col sm:flex-row gap-4 mt-4">
                             <button type="submit" id="addItemBtn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-md">Tambah Item</button>
                             <button type="button" id="updateItemBtn" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hidden">Perbarui Item</button>
                             <button type="button" id="cancelEditBtn" class="px-6 py-2 bg-gray-400 text-gray-800 font-semibold rounded-lg hover:bg-gray-500 transition-colors shadow-md hidden">Batal Edit</button>
@@ -212,9 +214,9 @@
                     </form>
                 </section>
 
-                <section id="details" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Rincian Detail Anggaran</h2>
-                    <p class="mb-6 text-gray-600">Gunakan filter di bawah untuk menjelajahi setiap item dalam anggaran. Anda dapat menyaring berdasarkan kategori pengeluaran atau sumber pendanaan, serta mencari item spesifik untuk analisis yang lebih mendalam.</p>
+                <section id="details" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Rincian Detail Anggaran</h2>
+                    <p class="mb-6 text-gray-600 text-sm sm:text-base">Gunakan filter di bawah untuk menjelajahi setiap item dalam anggaran. Anda dapat menyaring berdasarkan kategori pengeluaran atau sumber pendanaan, serta mencari item spesifik untuk analisis yang lebih mendalam.</p>
                     <div class="flex flex-col md:flex-row gap-4 mb-6">
                         <div class="flex-1">
                             <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter Kategori</label>
@@ -235,15 +237,15 @@
                     </div>
 
                     <div class="table-responsive-wrapper">
-                        <table class="w-full text-left border-collapse">
+                        <table class="min-w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-gray-100">
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Item</th>
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Kategori</th>
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b text-right">Total Biaya</th>
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Sumber Dana</th>
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Penanggung Jawab</th>
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b text-center">Aksi</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b">Item</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b">Kategori</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b text-right">Total Biaya</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b">Sumber Dana</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b">Penanggung Jawab</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="budgetTable">
@@ -253,9 +255,9 @@
                     <p id="tableSummary" class="text-sm text-gray-500 mt-4"></p>
                 </section>
 
-                <section id="adminPanel" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8 hidden">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Panel Admin: Manajemen Pengguna</h2>
-                    <p class="mb-6 text-gray-600">Tambahkan atau kelola pengguna yang dapat mengakses sistem anggaran.</p>
+                <section id="adminPanel" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8 lg:mb-10 hidden">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Panel Admin: Manajemen Pengguna</h2>
+                    <p class="mb-6 text-gray-600 text-sm sm:text-base">Tambahkan atau kelola pengguna yang dapat mengakses sistem anggaran.</p>
 
                     <form id="addUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
@@ -278,14 +280,14 @@
                         </div>
                     </form>
 
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Daftar Pengguna</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Daftar Pengguna</h3>
                     <div class="table-responsive-wrapper">
-                        <table class="w-full text-left border-collapse">
+                        <table class="min-w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-gray-100">
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Username</th>
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b">Peran</th>
-                                    <th class="p-3 font-semibold text-sm text-gray-700 border-b text-center">Aksi</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b">Username</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b">Peran</th>
+                                    <th class="p-3 font-semibold text-xs sm:text-sm text-gray-700 border-b text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTable">
@@ -296,8 +298,8 @@
                     <p id="userManagementMessage" class="text-sm text-red-500 mt-4"></p>
                 </section>
 
-                <section id="notes" class="mt-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Catatan Penting</h2>
+                <section id="notes" class="mt-8 lg:mt-10">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Catatan Penting</h2>
                     <div id="accordionContainer">
                     </div>
                 </section>
@@ -333,7 +335,7 @@
 
         const notesData = [
             { title: "Fleksibilitas Anggaran", content: "Angka-angka di atas adalah estimasi dan bisa disesuaikan dengan skala acara, ketersediaan dana, serta negosiasi dengan vendor." },
-            { title: "Proposal Donatur", content: "Untuk mendapatkan donatur musiman, sebaiknya siapkan proposal acara yang jelas dan menarik, berisi rincian kegiatan, tujuan, serta benefit yang bisa didapatkan donatur (misalnya, logo di spanduk, penyebutan di acara, dll.)." },
+            { title: "Proposal Donatur", content: "Untuk mendapatkan donatur musiman,berisi rincian kegiatan, tujuan, serta benefit yang bisa didapatkan donatur " },
             { title: "Transparansi", content: "Penting untuk selalu transparan dalam pengelolaan dana, terutama yang berasal dari masyarakat dan donatur, dengan membuat laporan keuangan sederhana yang bisa diakses." },
             { title: "Negosiasi", content: "Jangan ragu untuk bernegosiasi harga dengan penyedia jasa atau penjual barang untuk mendapatkan penawaran terbaik." }
         ];
@@ -392,7 +394,7 @@
         const modalMessage = document.getElementById('modalMessage');
         const modalButtons = document.getElementById('modalButtons');
 
-        let currentEditIndex = -1;
+        let currentEditId = null; // Changed from currentEditIndex to currentEditId
         let categoryChartInstance;
         let sourceChartInstance;
         
@@ -510,14 +512,20 @@
             const storedBudgetData = localStorage.getItem('budgetData');
             if (storedBudgetData) {
                 budgetData = JSON.parse(storedBudgetData);
+                // Ensure all loaded items have an ID
+                budgetData.forEach(item => {
+                    if (!item.id) {
+                        item.id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); // Add unique ID if missing
+                    }
+                });
             } else {
-                // Initial dummy data if no data exists
+                // Initial dummy data if no data exists, assign IDs
                 budgetData = [
-                    { kategori: 'Sewa', item: 'Sewa Panggung', volume: 1, satuan: 'Unit', harga: 5000000, total: 5000000, sumber: 'Masyarakat', penanggungJawab: 'Bapak RT' },
-                    { kategori: 'Perlengkapan', item: 'Sound System', volume: 1, satuan: 'Unit', harga: 3000000, total: 3000000, sumber: 'Donatur Musiman', penanggungJawab: 'Panitia' },
-                    { kategori: 'Konsumsi', item: 'Nasi Kotak', volume: 100, satuan: 'Pcs', harga: 25000, total: 2500000, sumber: 'Masyarakat', penanggungJawab: 'Ibu PKK' },
-                    { kategori: 'Hadiah', item: 'Hadiah Lomba Anak', volume: 1, satuan: 'Paket', harga: 1500000, total: 1500000, sumber: 'Donatur Musiman', penanggungJawab: 'Panitia' },
-                    { kategori: 'Dekorasi', item: 'Bendera Merah Putih', volume: 20, satuan: 'Pcs', harga: 15000, total: 300000, sumber: 'Masyarakat', penanggungJawab: 'Karang Taruna' }
+                    { id: 'item_1', kategori: 'Sewa', item: 'Sewa Panggung', volume: 1, satuan: 'Unit', harga: 5000000, total: 5000000, sumber: 'Masyarakat', penanggungJawab: 'Bapak RT' },
+                    { id: 'item_2', kategori: 'Perlengkapan', item: 'Sound System', volume: 1, satuan: 'Unit', harga: 3000000, total: 3000000, sumber: 'Donatur Musiman', penanggungJawab: 'Panitia' },
+                    { id: 'item_3', kategori: 'Konsumsi', item: 'Nasi Kotak', volume: 100, satuan: 'Pcs', harga: 25000, total: 2500000, sumber: 'Masyarakat', penanggungJawab: 'Ibu PKK' },
+                    { id: 'item_4', kategori: 'Hadiah', item: 'Hadiah Lomba Anak', volume: 1, satuan: 'Paket', harga: 1500000, total: 1500000, sumber: 'Donatur Musiman', penanggungJawab: 'Panitia' },
+                    { id: 'item_5', kategori: 'Dekorasi', item: 'Bendera Merah Putih', volume: 20, satuan: 'Pcs', harga: 15000, total: 300000, sumber: 'Masyarakat', penanggungJawab: 'Karang Taruna' }
                 ];
             }
             updateAllVisualizations();
@@ -540,10 +548,10 @@
             const baseTotal = nonContingencyData.reduce((sum, item) => sum + item.total, 0);
             const contingency = Math.round(baseTotal * 0.10);
 
-            const fullData = [...nonContingencyData];
+            const fullData = [...nonContingencyData]; // Creates new array, but objects inside are still references to original budgetData objects
             
             if (baseTotal > 0) {
-                fullData.push({
+                fullData.push({ // This is a new object
                     kategori: 'Lain-lain',
                     item: 'Biaya Tak Terduga (Kontingensi)',
                     volume: 1,
@@ -585,11 +593,9 @@
             if (data.length === 0) {
                 budgetTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4">Data tidak ditemukan.</td></tr>`;
             }
-            data.forEach((d, index) => {
-                let actualIndex = budgetData.findIndex(item => item === d);
-                if (d.item === 'Biaya Tak Terduga (Kontingensi)') {
-                    actualIndex = -1;
-                }
+            data.forEach((d) => {
+                // For contingency item, it doesn't have an ID from budgetData, so it's not editable.
+                const isContingency = (d.item === 'Biaya Tak Terduga (Kontingensi)');
 
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50';
@@ -600,9 +606,9 @@
                     <td class="p-3 text-gray-600 border-b border-gray-200">${d.sumber}</td>
                     <td class="p-3 text-gray-600 border-b border-gray-200">${d.penanggungJawab || '-'}</td>
                     <td class="p-3 text-center border-b border-gray-200">
-                        ${(currentUser && currentUser.role === 'admin' && actualIndex !== -1) ? `<button data-index="${actualIndex}" class="edit-btn text-blue-600 hover:text-blue-800 font-semibold mr-2">Edit</button>` : ''}
-                        ${(currentUser && currentUser.role === 'admin' && actualIndex !== -1) ? `<button data-index="${actualIndex}" class="delete-btn text-red-600 hover:text-red-800 font-semibold">Hapus</button>` : ''}
-                        ${(currentUser && currentUser.role !== 'admin' && actualIndex !== -1) ? `<span class="text-gray-500 text-xs">Hanya Admin</span>` : ''}
+                        ${(currentUser && currentUser.role === 'admin' && !isContingency) ? `<button data-id="${d.id}" class="edit-btn text-blue-600 hover:text-blue-800 font-semibold mr-2">Edit</button>` : ''}
+                        ${(currentUser && currentUser.role === 'admin' && !isContingency) ? `<button data-id="${d.id}" class="delete-btn text-red-600 hover:text-red-800 font-semibold">Hapus</button>` : ''}
+                        ${(currentUser && currentUser.role !== 'admin' && !isContingency) ? `<span class="text-gray-500 text-xs">Hanya Admin</span>` : ''}
                     </td>
                 `;
                 budgetTableBody.appendChild(row);
@@ -804,11 +810,13 @@
             addItemBtn.classList.remove('hidden');
             updateItemBtn.classList.add('hidden');
             cancelEditBtn.classList.add('hidden');
-            currentEditIndex = -1;
+            currentEditId = null; // Reset to null
         };
 
-        const populateFormForEdit = (index) => {
-            const itemToEdit = budgetData[index];
+        const populateFormForEdit = (itemId) => { // Now takes an ID
+            const itemToEdit = budgetData.find(item => item.id === itemId);
+            if (!itemToEdit) return; // Should not happen if ID is valid
+
             formKategori.value = itemToEdit.kategori;
             formItem.value = itemToEdit.item;
             formVolume.value = itemToEdit.volume;
@@ -820,7 +828,7 @@
             addItemBtn.classList.add('hidden');
             updateItemBtn.classList.remove('hidden');
             cancelEditBtn.classList.remove('hidden');
-            currentEditIndex = index;
+            currentEditId = itemId; // Store the ID
         };
 
         // --- User Management Functions (Admin Panel - Local Storage Mock) ---
@@ -829,8 +837,13 @@
             const storedUsers = localStorage.getItem('users');
             if (storedUsers) {
                 users = JSON.parse(storedUsers);
+                users.forEach(user => { // Ensure all loaded users have an ID
+                    if (!user.id) {
+                        user.id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    }
+                });
             } else {
-                // Default admin user if no users exist
+                // Default admin user if no users exist, ensure ID is present
                 users = [{ id: 'admin123', username: ADMIN_USERNAME, role: 'admin' }];
             }
             renderUsersTable(users);
@@ -882,7 +895,7 @@
             }
 
             const newUser = {
-                id: 'user_' + Date.now(), // Simple unique ID
+                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), // Generate new ID
                 username: username,
                 password: password, // In real app, this would be hashed!
                 role: role
@@ -969,6 +982,8 @@
             }
 
             const newItem = {
+                // Generate a new ID only if adding a new item
+                id: currentEditId || 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 kategori: formKategori.value,
                 item: formItem.value,
                 volume: parseInt(formVolume.value),
@@ -979,10 +994,13 @@
                 penanggungJawab: formPenanggungJawab.value
             };
 
-            if (currentEditIndex === -1) {
+            if (currentEditId === null) { // If currentEditId is null, it's a new item
                 budgetData.push(newItem);
-            } else {
-                budgetData[currentEditIndex] = newItem;
+            } else { // Otherwise, it's an update
+                const indexToUpdate = budgetData.findIndex(item => item.id === currentEditId);
+                if (indexToUpdate !== -1) {
+                    budgetData[indexToUpdate] = newItem; // Replace the item with the updated one
+                }
             }
             clearForm();
             updateAllVisualizations();
@@ -992,21 +1010,29 @@
         cancelEditBtn.addEventListener('click', clearForm);
 
         budgetTableBody.addEventListener('click', function(e) {
+            // Check if the clicked element or its parent is a button
+            const targetButton = e.target.closest('button');
+            if (!targetButton) return; // Not a button, do nothing
+
             if (!currentUser || currentUser.role !== 'admin') {
                 showModal('Hanya admin yang dapat mengedit atau menghapus item anggaran.', 'alert');
                 return;
             }
 
-            if (e.target.classList.contains('edit-btn')) {
-                const index = parseInt(e.target.dataset.index);
-                populateFormForEdit(index);
-            } else if (e.target.classList.contains('delete-btn')) {
-                const index = parseInt(e.target.dataset.index);
+            if (targetButton.classList.contains('edit-btn')) {
+                const itemId = targetButton.dataset.id; // Get ID from data-id attribute
+                populateFormForEdit(itemId);
+            } else if (targetButton.classList.contains('delete-btn')) {
+                const itemId = targetButton.dataset.id; // Get ID from data-id attribute
                 showModal('Apakah Anda yakin ingin menghapus item ini?', 'confirm', (confirmed) => {
                     if (confirmed) {
-                        budgetData.splice(index, 1);
-                        updateAllVisualizations();
-                        saveBudgetData(); // Explicitly save after deleting
+                        // Find index by ID to delete
+                        const indexToDelete = budgetData.findIndex(item => item.id === itemId);
+                        if (indexToDelete !== -1) {
+                            budgetData.splice(indexToDelete, 1);
+                            updateAllVisualizations();
+                            saveBudgetData(); // Explicitly save after deleting
+                        }
                     }
                 });
             }
@@ -1021,8 +1047,11 @@
         });
 
         usersTableBody.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-user-btn')) {
-                const userId = e.target.dataset.id;
+            const targetButton = e.target.closest('button');
+            if (!targetButton) return;
+
+            if (targetButton.classList.contains('delete-user-btn')) {
+                const userId = targetButton.dataset.id;
                 deleteUser(userId);
             }
         });
